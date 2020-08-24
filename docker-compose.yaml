@@ -1,24 +1,45 @@
 version: '3'
 services:
-  mongo-dev:
-    image: mongo:latest
-    container_name: mongo_dev
+  postgre-dev:
+    image: postgres:latest
+    container_name: postgres_dev
     restart: unless-stopped
-    hostname: mongo_dev
+    hostname: postgres_dev
     env_file:
       - .env
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
-      - MONGO_INITDB_USERNAME=${MONGO_INITDB_USERNAME}
-      - MONGO_INITDB_PASSWORD=${MONGO_INITDB_PASSWORD}
-      - MONGO_PORT=${MONGO_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_INITDB_ARGS='--encoding=UTF-8'
     ports:
-      - 17270:27017
-    command: ['-f', '/etc/mongod.conf']
+      - 3254:5432
     volumes:
-      - ./conf/mongod.conf:/etc/mongod.conf
-      - ./scripts/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
-      - ./data/db:/data/db
-      - ./data/log:/var/log/mongodb
+      - ./data/dbdata:/var/lib/postgresql/data
+      # - pgconf:/etc/postgresql
+      - ./data/pglog:/var/log/postgresql
+      # - data:/var/lib/postgresql/data
+    networks:
+      - pgnet
+
+  pgadmin4-dev:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_dev
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: root
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - '9090:80'
+    volumes:
+      - ./pgadmin:/root/.pgadmin
+    depends_on:
+      - postgre-dev
+    networks:
+      - pgnet
+
+networks:
+  pgnet:
+    driver: bridge
+# volumes:
+#   data: {}

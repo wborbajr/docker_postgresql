@@ -1,45 +1,39 @@
 version: '3'
 services:
-  postgre-dev:
+  database:
     image: postgres:latest
-    container_name: postgres_dev
-    restart: unless-stopped
-    hostname: postgres_dev
-    env_file:
-      - .env
+    container_name: ct_postgres
+    hostname: postgres-db
+    restart: always
+    # env_file:
+    #   - .env
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_INITDB_ARGS='--encoding=UTF-8'
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8'
+      PGDATA: /var/lib/postgresql/data
     ports:
       - 3254:5432
     volumes:
-      - ./data/dbdata:/var/lib/postgresql/data
+      - ./data/dbdata:/var/lib/postgresql/data:rw
       # - pgconf:/etc/postgresql
-      - ./data/pglog:/var/log/postgresql
+      - ./data/pglog:/var/log/postgresql:rw
       # - data:/var/lib/postgresql/data
-    networks:
-      - pgnet
 
   pgadmin4-dev:
     image: dpage/pgadmin4
-    container_name: pgadmin4_dev
+    container_name: ct_pgadmin4
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: root
-      PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
     ports:
       - '9090:80'
     volumes:
-      - ./pgadmin:/root/.pgadmin
+      - ./data/pgadmin:/var/lib/pgadmin:rw
     depends_on:
-      - postgre-dev
-    networks:
-      - pgnet
-
-networks:
-  pgnet:
-    driver: bridge
-# volumes:
-#   data: {}
+      - database
+    links:
+      - database:postgres-db

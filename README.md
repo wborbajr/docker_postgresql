@@ -1,63 +1,90 @@
-![Docker](https://github.com/wborbajr/docker_mysql/blob/master/docker.jpeg)
+![Docker](https://github.com/wborbajr/docker_postgresql/blob/master/docker.jpeg)
 
 ## Downloading
 
 ```bash
-git clone https://github.com/wborbajr/docker_mysql.git
-cd docker_mysql
+git clone https://github.com/wborbajr/docker_postgresql.git
+cd docker_postgresql
 ```
 
-## MariaDB
+## PostgreSQL
 
-Before bring container up, please change environment variables at **docker-compose.yaml**
+Before bring container up, please change environment settings at **.env**
 
 ```
-MYSQL_ROOT_PASSWORD: xxxxx
-MYSQL_USER: xxxx
-MYSQL_DATABASE: xxxx
-MYSQL_PASSWORD: xxxx
+# PostgreSQL
+POSTGRES_USER=xxx
+POSTGRES_PASSWORD=xxx
+POSTGRES_DB=xxx
+
+# PgAdmin
+PGADMIN_DEFAULT_EMAIL=xxx
+PGADMIN_DEFAULT_PASSWORD=xxx
+PGADMIN_LISTEN_PORT=xxx
 ```
 
 ## Database
 
-All databases will be saved locally at data folder.
+All databases will be saved locally at data folder **./data/**
 
-Create two folders inside **docker_mysql**, to store **_development_** and **_production_** database locally.
-
-**_PS_** If you decided to change folders name or path, please, remember to modify the entry **volumes** at **docker-compose.yaml**
+**PS:** If you decided to change folders name or path, please, remember to modify the entry **volumes** at **docker-compose.yaml**
 
 ```
 volumes:
-    - ./data_prod:/var/lib/mysql:rw
-```
-
-```bash
-mkdir data_dev
-mkdir data_prod
+    - ./data/dbdata:/var/lib/postgresql/data:rw
 ```
 
 ## Port
 
-MariaDB will expose port **60330** for development environment and **60331** for production environment.
+MariaDB will expose port **3254**, so remember to configure your MySQL Client to connect at **_Port: 3254_**
+
 You can change it at **docker-compose.yaml** for your own propose.
 
 ## To execute
+
+### Just PostgreSQL
+
+```bash
+docker-compose up -d database
+```
+
+Or you can run using Makefile
+
+```bash
+make up-db
+```
+
+### Bringing up PostgreSQL and PGAdmin-4
 
 ```bash
 docker-compose up -d
 ```
 
-# To stop
+Or you can run using Makefile
+
+```bash
+make up-all
+```
+
+## To stop
+
+### Stopping Development environment
 
 ```bash
 docker-compose down
 ```
 
+Or you can run using Makefile
+
+```bash
+make down
+```
+
 ## Configuration
 
-You can setup your own configurations just changing file **my.conf** located at config folder.
+You can setup your own configurations just creating file into **config** folder.
 
-After setup your own MariaDB configuration, don't forget to enable at **docker-compose.yaml** at **volumes** section to read your configuration file, removing comment tag.
+After setup your own PostgreSQL configuration, don't forget to enable at **docker-compose.yaml** at **volumes** section to read your configuration file, removing comment tag.
 
 ## Checking status
 
